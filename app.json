@@ -2,10 +2,11 @@
   "expo": {
     "name": "blog-post",
     "slug": "blog-post",
+    "scheme": "myapp",
     "version": "1.0.0",
+
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -13,15 +14,13 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "apple.app"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "android.app"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +38,9 @@
       "eas": {
         "projectId": "baecd213-96da-46c0-a994-d185dc821125"
       }
+    },
+    "expo": {
+      "scheme": "mycoolredirect"
     }
   }
 }
