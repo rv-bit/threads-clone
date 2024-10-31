@@ -1,12 +1,12 @@
-import * as schema from '../db/schema';
+import * as schema from '../drizzle/schema/index';
 
 import { Stack } from "expo-router";
 import { Text, View } from 'react-native';
 
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
 
-import { applyMigrations } from "@/db/migration";
-import { sqlInstance, drizzleInstance } from "@/db";
+import { applyMigrations } from "@/services/drizzle.migration";
+import { sqlInstance, drizzleInstance } from "@/services/drizzle.instance";
 
 export default function RootLayout() {
     useDrizzleStudio(sqlInstance);
@@ -38,7 +38,7 @@ export default function RootLayout() {
             }}
         >
             <Stack.Screen
-                name='(tabs)'
+                name='(main)'
                 options={{
                     headerTitle: '',
                     headerShown: false,

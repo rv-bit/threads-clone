@@ -1,11 +1,11 @@
-import * as schema from '@/db/schema';
+import * as schema from '@/drizzle/schema/likes';
 
 import { Link } from 'expo-router'
 
 import { useEffect, useState } from 'react'
 import { Text, View, Pressable } from 'react-native'
 
-import { drizzleInstance } from "@/db";
+import { drizzleInstance } from "@/services/drizzle.instance";
 
 const Home = () => {
 	const [user, setUser] = useState(null);
