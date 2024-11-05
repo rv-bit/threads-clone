@@ -1,3 +1,4 @@
+import "../global.css";
 import * as schema from '../drizzle/schema/index';
 
 import { Stack } from "expo-router";
