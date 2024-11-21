@@ -1,9 +1,11 @@
-const { getDefaultConfig } = require("expo/metro-config");
+// Learn more https://docs.expo.io/guides/customizing-metro
+const { getDefaultConfig } = require('expo/metro-config');
 const { withNativeWind } = require("nativewind/metro");
 
-const config = getDefaultConfig(__dirname);
+/** @type {import('expo/metro-config').MetroConfig} */
+const defaultConfig = getDefaultConfig(__dirname);
 
-config.resolver.unstable_enablePackageExports = true;
-config.resolver.sourceExts.push('sql');
+defaultConfig.resolver.sourceExts.push('cjs');
+defaultConfig.resolver.sourceExts.push('sql');
 
-module.exports = withNativeWind(config, { input: "./src/global.css" });
+module.exports = withNativeWind(defaultConfig, { input: "./global.css" });;
