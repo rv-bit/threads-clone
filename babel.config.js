@@ -1,12 +1,10 @@
-const plugin = require("tailwindcss");
-
-module.exports = function(api) {
-    api.cache(true);
-    return {
-        presets: ['babel-preset-expo'],
-        plugins: [
-            "nativewind/babel",
-            ["inline-import", { "extensions": [".sql"] }]
-        ]
-    };
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: [
+      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
+      "nativewind/babel",
+    ],
+    plugins: [["inline-import", { "extensions": [".sql"] }]]
+  };
 };
