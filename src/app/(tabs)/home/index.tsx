@@ -7,15 +7,8 @@ import { Text, View, Pressable } from 'react-native'
 
 import { database } from "@/lib/database";
 
-type posts = {
-	id: number;
-	title: string;
-	content: string;
-	createdAt: number | null;
-}
-
 const Home = () => {
-	const [posts, setPosts] = useState<posts[] | null>(null);
+	const [posts, setPosts] = useState<schema.Post[] | null>(null);
 
 	const insert = async () => {
 		try {
@@ -36,10 +29,7 @@ const Home = () => {
 	const fetch = async () => {
 		try {
 			const posts = await database.select().from(schema.posts)
-			setPosts(posts.map(post => ({
-				...post,
-				createdAt: post.createdAt instanceof Date ? post.createdAt.getTime() : post.createdAt
-			})));
+			setPosts(posts);
 		} catch (error) {
 			console.error('Error during fetch:', error);
 		}
