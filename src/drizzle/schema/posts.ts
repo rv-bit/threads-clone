@@ -9,6 +9,7 @@ export const posts = table(
         id: integer().primaryKey({ autoIncrement: true }),
         title: text().notNull(),
         content: text().notNull(),
+        images: text().default(sql`'[]'`),
         createdAt: integer({ mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
     }
 );
