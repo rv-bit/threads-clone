@@ -62,6 +62,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
                     customBuildFlags: ["-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"]
                 }
             }
+        ],
+        [
+            "expo-camera",
+            {
+                "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+                "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+                "recordAudioAndroid": true
+            }
+        ],
+        [
+            "expo-image-picker",
+            {
+                "photosPermission": "The app accesses your photos to let you share them with your friends."
+            }
         ]
     ],
 });
