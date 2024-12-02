@@ -8,6 +8,7 @@ import migrations from '@/drizzle/migrations/migrations';
 
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { database, sqlInstance } from "@/lib/database";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
 	useDrizzleStudio(sqlInstance);
@@ -31,18 +32,20 @@ export default function RootLayout() {
 	}
 
 	return (
-		<Stack
-			screenOptions={{
-				headerShown: false,
-			}}
-		>
-			<Stack.Screen
-				name='(tabs)'
-				options={{
-					headerTitle: '',
+		<SafeAreaProvider>
+			<Stack
+				screenOptions={{
 					headerShown: false,
 				}}
-			/>
-		</Stack>
+			>
+				<Stack.Screen
+					name='main'
+					options={{
+						headerTitle: '',
+						headerShown: false,
+					}}
+				/>
+			</Stack>
+		</SafeAreaProvider>
 	);
 }
