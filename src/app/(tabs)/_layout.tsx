@@ -14,8 +14,10 @@ export default () => {
 					opacity: 0.9,
 					borderTopWidth: 1,
 					borderTopColor: "transparent",
-					height: 75,
+					height: 85,
 				},
+				tabBarActiveTintColor: "white",
+				tabBarInactiveTintColor: "none",
 				animation: "shift",
 			}}
 		>
@@ -25,7 +27,7 @@ export default () => {
 					tabBarIcon: ({ focused, color, size }) => {
 						return (
 							<HomeIcon
-								fill={focused ? "white" : "none"} // Set active/inactive color
+								fill={color} // Set active/inactive color
 								strokeWidth={focused ? 0 : 2} // Adjust icon size
 								width={38} // Adjust icon size
 								height={38} // Adjust icon size
@@ -45,7 +47,7 @@ export default () => {
 					tabBarIcon: ({ focused, color, size }) => {
 						return (
 							<SavedIcon
-								fill={focused ? "white" : "none"} // Set active/inactive color
+								fill={color} // Set active/inactive color
 								strokeWidth={focused ? 0 : 2} // Adjust icon size
 								width={38} // Adjust icon size
 								height={38} // Adjust icon size
