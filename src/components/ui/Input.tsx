@@ -9,13 +9,13 @@ interface InputProps {
 	onChange?: (value: string) => void;
 }
 
-export default function Input({ className, title, value, placeholder, onChange }: InputProps) {
+const Input = ({ className, title, value, placeholder, onChange }: InputProps) => {
 	return (
 		<View className={cn(className, "flex flex-col gap-1")}>
 			{title && <Text className="text-sm font-semibold">{title}</Text>}
 
 			<TextInput
-				className={cn(className, "h-10 w-full rounded-md border border-gray-300 p-2")}
+				className={cn("h-10 w-full rounded-md p-2", className)}
 				placeholder={placeholder}
 				value={value}
 				onChangeText={(text) => {
@@ -26,4 +26,6 @@ export default function Input({ className, title, value, placeholder, onChange }
 			/>
 		</View>
 	);
-}
+};
+
+export default Input;
