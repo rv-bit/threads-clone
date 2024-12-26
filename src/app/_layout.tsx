@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Text, View } from "react-native";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useFonts } from "expo-font";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -58,29 +59,31 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
 	return (
-		<SafeAreaProvider className="flex-1 bg-black/90 p-5">
-			<Stack
-				screenOptions={{
-					headerShown: false,
-				}}
-			>
-				<Stack.Screen
-					name="(tabs)"
-					options={{
-						headerTitle: "",
+		<SafeAreaProvider>
+			<GestureHandlerRootView>
+				<Stack
+					screenOptions={{
 						headerShown: false,
 					}}
-				/>
+				>
+					<Stack.Screen
+						name="(tabs)"
+						options={{
+							headerTitle: "",
+							headerShown: false,
+						}}
+					/>
 
-				<Stack.Screen
-					name="new-post"
-					options={{
-						presentation: "modal",
-						animation: "slide_from_bottom",
-						headerShown: false,
-					}}
-				/>
-			</Stack>
+					<Stack.Screen
+						name="new-post"
+						options={{
+							presentation: "modal",
+							animation: "slide_from_bottom",
+							headerShown: false,
+						}}
+					/>
+				</Stack>
+			</GestureHandlerRootView>
 		</SafeAreaProvider>
 	);
 }
