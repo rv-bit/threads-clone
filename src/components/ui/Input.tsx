@@ -15,7 +15,7 @@ const Input = ({ className, title, value, placeholder, onChange }: InputProps) =
 			{title && <Text className="text-sm font-semibold">{title}</Text>}
 
 			<TextInput
-				className={cn("h-10 w-full rounded-md p-2", className)}
+				className={cn("h-10 w-full rounded-md p-2 placeholder:color-white", className)}
 				placeholder={placeholder}
 				value={value}
 				onChangeText={(text) => {
