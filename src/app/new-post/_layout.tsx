@@ -21,7 +21,7 @@ export default function StackLayout() {
 					headerTitle: "New Post",
 					headerTitleStyle: {
 						color: "#fff",
-						fontWeight: "bold",
+						fontWeight: "900",
 					},
 					headerLeft() {
 						return (
