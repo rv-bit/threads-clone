@@ -9,19 +9,6 @@ import PostCard from "@/components/ui/pages/post-card";
 import { Fetch } from "@/api/post";
 
 export default function Activity() {
-	const [posts, setPosts] = useState<schema.Post[] | null>(null);
-
-	useEffect(() => {
-		(async () => {
-			const posts = await Fetch();
-			setPosts(posts || []);
-		})();
-
-		return () => {
-			setPosts(null);
-		};
-	}, []);
-
 	return (
 		<SafeAreaView className="flex-1 flex-col items-start justify-center p-5">
 			<ScrollView className="h-full w-full flex-1">
