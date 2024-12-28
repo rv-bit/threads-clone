@@ -8,7 +8,7 @@ export const likes = table(
 	"likes",
 	{
 		id: integer().primaryKey({ autoIncrement: true }),
-		postId: text().notNull(),
+		postId: integer().notNull(),
 		createdAt: integer({ mode: "timestamp" })
 			.default(sql`(strftime('%s', 'now'))`)
 			.notNull(),
