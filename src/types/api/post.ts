@@ -3,4 +3,5 @@ export interface PostFetchProps {
 	content: string;
 	images: string[];
 	dateTimeStamp: Date;
+	liked: boolean;
 }
