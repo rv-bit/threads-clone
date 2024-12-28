@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
-import { router } from "expo-router";
-import { Image, Pressable, ScrollView, Text, TouchableOpacity, View, Dimensions } from "react-native";
+import * as Network from "expo-network";
+
+import { Image, Pressable, ScrollView, Text, TouchableOpacity, View, Dimensions, Share, Alert } from "react-native";
 
 import ContextIcon from "@/components/icons/ContextIcon";
 import LikeIcon from "@/components/icons/LikeIcon";
@@ -29,15 +30,38 @@ const PostCard = (props: PostCardProps) => {
 		setModalVisible(false);
 	}, []);
 
+	const handleOnShare = useCallback(async () => {
+		const network = await Network.getNetworkStateAsync();
+
+		if (network.type !== Network.NetworkStateType.CELLULAR && network.type !== Network.NetworkStateType.WIFI) {
+			Alert.alert("No internet connection");
+			return;
+		}
+
+		try {
+			const result = await Share.share({
+				message: "React Native",
+				url: "https://reactnative.dev",
+			});
+
+			if (result.action === Share.sharedAction) {
+				if (result.activityType) {
+					console.log("Shared with activity type of", result.activityType);
+				} else {
+					console.log("Shared");
+				}
+			} else if (result.action === Share.dismissedAction) {
+				console.log("Dismissed");
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}, []);
+
 	const screenWidth = Dimensions.get("window").width;
 
 	return (
-		<Pressable
-			onPress={() => {
-				router.push("/new-post");
-			}}
-			className="z-10 h-fit w-full border-b-[1px] border-white/10"
-		>
+		<Pressable onPress={() => {}} className="z-10 h-fit w-full border-b-[1px] border-white/10">
 			{/* Header Section */}
 			<View className="mt-2 flex-1 flex-row items-start gap-3 p-3">
 				<Image source={{ uri: props.avatar }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 5 }} />
@@ -106,7 +130,11 @@ const PostCard = (props: PostCardProps) => {
 						<LikeIcon fill={props.liked ? "red" : "none"} strokeWidth={props.liked ? 0 : 2} width={38} height={38} />
 					</Pressable>
 
-					<Pressable onPress={() => {}}>
+					<Pressable
+						onPress={() => {
+							handleOnShare();
+						}}
+					>
 						<ShareIcon fill="none" strokeWidth={2} width={38} height={38} />
 					</Pressable>
 				</View>
