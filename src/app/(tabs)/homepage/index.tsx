@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
-import { View, ScrollView, SafeAreaView, RefreshControl } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { View, SafeAreaView, RefreshControl } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 
-import { Fetch } from "@/api/post";
+import { FetchPosts } from "@/api/post";
 import { usePostStore } from "@/stores/usePosts";
+
+import { PostFetchProps } from "@/types/api/post";
 
 import CreatePostCard from "@/components/ui/pages/create-post";
 import PostCard from "@/components/ui/pages/post-card";
@@ -11,13 +13,13 @@ import PostCard from "@/components/ui/pages/post-card";
 import Input from "@/components/ui/Input";
 
 export default function Home() {
+	const { posts, setPosts } = usePostStore();
+
 	const [searchParams, setSearchParams] = useState<string>("");
 	const [refreshing, setRefreshing] = useState<boolean>(false);
 
-	const { posts, setPosts } = usePostStore();
-
 	const handleFetch = useCallback(async () => {
-		const posts = await Fetch();
+		const posts = await FetchPosts();
 
 		if (!posts) {
 			return;
@@ -52,7 +54,11 @@ export default function Home() {
 		})();
 
 		return () => {};
-	}, []);
+	}, [handleFetch, setPosts]);
+
+	const filteredPosts = useMemo(() => {
+		return posts?.filter((post: PostFetchProps) => post.content.toLowerCase().includes(searchParams.toLowerCase()));
+	}, [posts, searchParams]);
 
 	return (
 		<SafeAreaView className="flex-1 flex-col items-start justify-center p-5 px-0">
@@ -62,7 +68,7 @@ export default function Home() {
 
 			<FlatList
 				style={{ width: "100%", flex: 1 }}
-				data={posts}
+				data={filteredPosts}
 				ListHeaderComponent={<CreatePostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" />}
 				renderItem={({ item }) => (
 					<PostCard
@@ -72,6 +78,7 @@ export default function Home() {
 						avatar="https://randomuser.me/api/portraits/men/75.jpg"
 						content={item.content}
 						images={item.images}
+						liked={item.liked}
 						date={item.dateTimeStamp.toLocaleTimeString()}
 					/>
 				)}
