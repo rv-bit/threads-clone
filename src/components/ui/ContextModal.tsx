@@ -17,6 +17,10 @@ const ContextModal: React.FC<ContextModalProps> = ({ visible, onClose, children 
 		if (visible) {
 			translateY.value = withTiming(0, { duration: 300 });
 		}
+
+		return () => {
+			translateY.value = withTiming(0, { duration: 300 });
+		};
 	}, [visible]);
 
 	const gesture = Gesture.Pan()
@@ -42,7 +46,6 @@ const ContextModal: React.FC<ContextModalProps> = ({ visible, onClose, children 
 			visible={visible}
 			onRequestClose={() => {
 				// Prevent back button from closing the modal
-				console.log("Modal has been closed.");
 			}}
 		>
 			<View style={styles.overlay}>
