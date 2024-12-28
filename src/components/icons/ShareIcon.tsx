@@ -3,9 +3,9 @@ import { IconProps } from "@/types/components";
 
 export default function ShareIcon(props: IconProps) {
 	return (
-		<Svg width={props.width || "32"} height={props.height || "32"} fill={props.fill || "none"} viewBox="0 0 32 32" {...props}>
+		<Svg width={props.width || "32"} height={props.height || "32"} viewBox="0 0 32 32" {...props}>
 			<Path
-				fill={props.fill || "none"}
+				fill={props.fill || "#181818"}
 				stroke={props.strokeColor || "#B8B8B8"}
 				strokeWidth={props.strokeWidth || "0"}
 				strokeLinejoin="round"
