@@ -2,8 +2,15 @@ import { useCallback, useState } from "react";
 import * as Network from "expo-network";
 
 import { Image, Pressable, ScrollView, Text, TouchableOpacity, View, Dimensions, Share, Alert } from "react-native";
+
 import { cn } from "@/lib/utils";
-import { Delete } from "@/api/post";
+
+import { DeletePost } from "@/api/post";
+import { DeleteLike, InsertLike } from "@/api/likes";
+
+import { PostCardProps } from "@/types/posts";
+
+import { usePostStore } from "@/stores/usePosts";
 
 import ContextIcon from "@/components/icons/ContextIcon";
 import LikeIcon from "@/components/icons/LikeIcon";
@@ -11,19 +18,9 @@ import ShareIcon from "@/components/icons/ShareIcon";
 
 import ContextModal from "@/components/ui/ContextModal"; // Adjust the import path as needed
 import Separator from "@/components/ui/Separator";
-import { usePostStore } from "@/stores/usePosts";
-
-type PostCardProps = {
-	id: number;
-	username: string;
-	date?: string;
-	avatar: string;
-	content: string;
-	images?: string[];
-	liked?: boolean;
-};
 
 const PostCard = (props: PostCardProps) => {
+	const { posts, setPosts } = usePostStore();
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const handleOpenModal = useCallback(() => {
@@ -34,20 +31,56 @@ const PostCard = (props: PostCardProps) => {
 		setModalVisible(false);
 	}, []);
 
-	const handleOnDelete = useCallback(async (id: number) => {
-		console.log("Deleting post with id:", id);
+	const handleOnDelete = useCallback(
+		async (id: number) => {
+			const { error, message } = await DeletePost(id);
 
-		const { error, message } = await Delete(id);
+			if (error) {
+				console.error(message);
+				Alert.alert("Error deleting post");
+				return;
+			}
 
-		if (error) {
-			console.error(message);
-			return;
-		}
+			Alert.alert("Post deleted successfully!");
 
-		Alert.alert("Post deleted successfully!");
-	}, []);
+			const updatedPosts = posts?.filter((post) => post.id !== id);
+			setPosts(updatedPosts);
+		},
+		[posts, setPosts],
+	);
 
-	const handleOnShare = useCallback(async () => {
+	const handleOnLike = useCallback(
+		async (id: number) => {
+			const post = posts?.find((post) => post.id === id);
+			const isAlreadyLiked = post?.liked;
+
+			const { error, message } = isAlreadyLiked ? await DeleteLike(id) : await InsertLike(id);
+
+			if (error) {
+				console.error(message);
+				Alert.alert("Error updating like status");
+				return;
+			}
+
+			Alert.alert(isAlreadyLiked ? "Post unliked!" : "Post liked!");
+
+			const updatedPosts = posts?.map((post) => {
+				if (post.id === id) {
+					return {
+						...post,
+						liked: !isAlreadyLiked,
+					};
+				}
+
+				return post;
+			});
+
+			setPosts(updatedPosts);
+		},
+		[posts, setPosts],
+	);
+
+	const handleOnShare = useCallback(async (shareContent: string) => {
 		const network = await Network.getNetworkStateAsync();
 
 		if (network.type !== Network.NetworkStateType.CELLULAR && network.type !== Network.NetworkStateType.WIFI) {
@@ -57,8 +90,7 @@ const PostCard = (props: PostCardProps) => {
 
 		try {
 			const result = await Share.share({
-				message: "React Native",
-				url: "https://reactnative.dev",
+				message: shareContent + "\n\nShared via Local Social App",
 			});
 
 			if (result.action === Share.sharedAction) {
@@ -89,8 +121,8 @@ const PostCard = (props: PostCardProps) => {
 							<Text className="text-md font-extrabold text-white">{props.username || "username"}</Text>
 							<Text className="text-md text-gray-500">{props.date || "2h"}</Text>
 						</View>
-						<Pressable onPress={() => handleOpenModal()} className="h-fit w-fit">
-							<ContextIcon fill="#636263" strokeWidth={0} width={28} height={24} />
+						<Pressable onPress={() => handleOpenModal()}>
+							<ContextIcon fill="#636263" strokeWidth={0} width={32} height={32} />
 						</Pressable>
 					</View>
 
@@ -143,13 +175,17 @@ const PostCard = (props: PostCardProps) => {
 						paddingHorizontal: 55, // Align with content and images
 					}}
 				>
-					<Pressable onPress={() => {}}>
-						<LikeIcon fill={props.liked ? "red" : "none"} strokeWidth={props.liked ? 0 : 2} width={38} height={38} />
+					<Pressable
+						onPress={() => {
+							handleOnLike(props.id);
+						}}
+					>
+						<LikeIcon fill={props.liked ? "#ff0000" : "#181818"} strokeWidth={props.liked ? 0 : 2} width={38} height={38} />
 					</Pressable>
 
 					<Pressable
 						onPress={() => {
-							handleOnShare();
+							handleOnShare(props.content);
 						}}
 					>
 						<ShareIcon fill="none" strokeWidth={2} width={38} height={38} />
