@@ -1,9 +1,9 @@
 import * as schema from "@/drizzle/schema";
 import { database } from "@/lib/database";
 
-import { LikeProps, InsertLikeProps } from "@/types/api/likes";
+import { eq } from "drizzle-orm";
 
-export const Insert = async (postId: string) => {
+export const InsertLike = async (postId: number) => {
 	try {
 		await database.insert(schema.likes).values([
 			{
@@ -23,10 +23,18 @@ export const Insert = async (postId: string) => {
 	}
 };
 
-export const Fetch = async (postId: string) => {
+export const DeleteLike = async (postId: number) => {
 	try {
-		return await database.select().from(schema.likes);
+		await database.delete(schema.likes).where(eq(schema.likes.postId, postId));
+
+		return {
+			error: false,
+			message: "Like deleted successfully!",
+		};
 	} catch (error) {
-		console.error("Error during fetch:", error);
+		return {
+			error: true,
+			message: `Error deleting post, Error Message ${error}`,
+		};
 	}
 };
