@@ -128,161 +128,159 @@ export default function CreatePost() {
 	const screenWidth = Dimensions.get("window").width;
 
 	return (
-		<>
-			<ReactAnimated.View entering={FadeIn} className="border-t-[3px] border-[#1C1C1C]">
-				<SafeAreaView
+		<ReactAnimated.View entering={FadeIn} className="border-t-[3px] border-[#1C1C1C]">
+			<SafeAreaView
+				style={{
+					width: "100%",
+					height: "95%",
+					backgroundColor: "#181818",
+				}}
+			>
+				<KeyboardAvoidingView
 					style={{
+						flex: 1,
 						width: "100%",
-						height: "95%",
-						backgroundColor: "#181818",
+						height: "100%",
+						gap: 10,
 					}}
+					behavior={Platform.OS === "ios" ? "padding" : "height"}
 				>
-					<KeyboardAvoidingView
+					<ScrollView
 						style={{
-							flex: 1,
 							width: "100%",
 							height: "100%",
-							gap: 10,
 						}}
-						behavior={Platform.OS === "ios" ? "padding" : "height"}
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{
+							flexGrow: 1, // Ensure the content takes up full space for smooth scrolling
+							paddingBottom: isKeyboardVisible ? 190 : 60, // Provide space for the keyboard and actions
+						}}
 					>
-						<ScrollView
-							style={{
-								width: "100%",
-								height: "100%",
-							}}
-							showsVerticalScrollIndicator={false}
-							contentContainerStyle={{
-								flexGrow: 1, // Ensure the content takes up full space for smooth scrolling
-								paddingBottom: isKeyboardVisible ? 190 : 60, // Provide space for the keyboard and actions
-							}}
-						>
-							<View className="w-full flex-row items-start justify-start gap-3" style={styles.paddingStyles}>
-								<Image source={{ uri: "https://randomuser.me/api/portraits/men/75.jpg" }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 2 }} />
+						<View className="w-full flex-row items-start justify-start gap-3" style={styles.paddingStyles}>
+							<Image source={{ uri: "https://randomuser.me/api/portraits/men/75.jpg" }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 2 }} />
 
-								<View className="flex-1 flex-col items-start justify-start gap-3">
-									<View className="flex-col items-start justify-start">
-										<Text className="text-md font-extrabold text-white">rsvsbb</Text>
-										<TextInput
-											ref={inputRef}
-											multiline={true}
-											numberOfLines={10}
-											placeholder="What's new?"
-											value={formData.content}
-											onChangeText={(text) => {
-												handleContentChange(text);
-											}}
-											className={cn("rounded-md p-0 text-sm placeholder:color-gray-500", "text-white")}
-											style={{
-												textAlignVertical: "top",
-											}}
-										/>
-									</View>
-								</View>
-							</View>
-
-							<View style={{ width: "100%" }}>
-								{formData.images && (
-									<View
+							<View className="flex-1 flex-col items-start justify-start gap-3">
+								<View className="flex-col items-start justify-start">
+									<Text className="text-md font-extrabold text-white">rsvsbb</Text>
+									<TextInput
+										ref={inputRef}
+										multiline={true}
+										numberOfLines={10}
+										placeholder="What's new?"
+										value={formData.content}
+										onChangeText={(text) => {
+											handleContentChange(text);
+										}}
+										className={cn("rounded-md p-0 text-sm placeholder:color-gray-500", "text-white")}
 										style={{
-											marginTop: formData.images.length > 0 ? 10 : 0,
-											paddingHorizontal: 10,
-											width: screenWidth, // Use full screen width
+											textAlignVertical: "top",
 										}}
-									>
-										<ScrollView
-											horizontal
-											showsHorizontalScrollIndicator={false}
-											contentContainerStyle={{
-												flexDirection: "row",
-												alignItems: "center",
-												gap: 10,
-												marginLeft: 55, // Align starting point with content/actions
-											}}
-										>
-											{formData.images.map((image, index) => (
-												<View key={index}>
-													<Pressable
-														onPress={() => {
-															setFormData((prevData) => ({
-																...prevData,
-																images: prevData.images.filter((_, i) => i !== index),
-															}));
-														}}
-														className="absolute right-2 top-2 z-20 rounded-full bg-black/60 p-2"
-													>
-														<Feather name="x" size={20} color="white" />
-													</Pressable>
-													<Image
-														source={{ uri: image }}
-														style={{
-															width: 150, // Adjust width to your preference
-															height: 250,
-															borderRadius: 5,
-														}}
-													/>
-												</View>
-											))}
-										</ScrollView>
-									</View>
-								)}
-
-								{/* Actions Section (Like and Share Icons) */}
-								<View
-									style={[
-										{
-											marginTop: formData.images.length > 0 ? 15 : 5,
-											flexDirection: "row",
-											alignItems: "flex-start",
-											gap: 10,
-											marginLeft: 65, // Align with content and images
-										},
-									]}
-								>
-									<Pressable
-										onPress={() => {
-											handleOnAddImages();
-										}}
-									>
-										<Ionicons name="images-outline" size={25} color="#636263" />
-									</Pressable>
-									<Pressable
-										onPress={() => {
-											router.dismiss(); // Close the modal for now
-
-											showCamera(handleCapture);
-										}}
-									>
-										<Feather name="camera" size={25} color="#636263" />
-									</Pressable>
+									/>
 								</View>
 							</View>
-						</ScrollView>
+						</View>
 
-						<ReactAnimated.View
-							style={[
-								animatedStyle,
-								{
-									justifyContent: "flex-end",
-									alignItems: "flex-end",
-									position: "absolute",
-									width: "100%",
-									height: 70,
-									left: 0,
-									bottom: isKeyboardVisible ? -80 : -50,
-									backgroundColor: "#181818",
-								},
-							]}
-							className="p-5"
-						>
-							<TouchableOpacity activeOpacity={0.7} onPress={handleOnPost} className="rounded-3xl bg-[#5A5A5A] px-6 py-3 text-center">
-								<Text className="text-black">Post</Text>
-							</TouchableOpacity>
-						</ReactAnimated.View>
-					</KeyboardAvoidingView>
-				</SafeAreaView>
-			</ReactAnimated.View>
-		</>
+						<View style={{ width: "100%" }}>
+							{formData.images && (
+								<View
+									style={{
+										marginTop: formData.images.length > 0 ? 10 : 0,
+										paddingHorizontal: 10,
+										width: screenWidth, // Use full screen width
+									}}
+								>
+									<ScrollView
+										horizontal
+										showsHorizontalScrollIndicator={false}
+										contentContainerStyle={{
+											flexDirection: "row",
+											alignItems: "center",
+											gap: 10,
+											marginLeft: 55, // Align starting point with content/actions
+										}}
+									>
+										{formData.images.map((image, index) => (
+											<View key={index}>
+												<Pressable
+													onPress={() => {
+														setFormData((prevData) => ({
+															...prevData,
+															images: prevData.images.filter((_, i) => i !== index),
+														}));
+													}}
+													className="absolute right-2 top-2 z-20 rounded-full bg-black/60 p-2"
+												>
+													<Feather name="x" size={20} color="white" />
+												</Pressable>
+												<Image
+													source={{ uri: image }}
+													style={{
+														width: 150, // Adjust width to your preference
+														height: 250,
+														borderRadius: 5,
+													}}
+												/>
+											</View>
+										))}
+									</ScrollView>
+								</View>
+							)}
+
+							{/* Actions Section (Like and Share Icons) */}
+							<View
+								style={[
+									{
+										marginTop: formData.images.length > 0 ? 15 : 5,
+										flexDirection: "row",
+										alignItems: "flex-start",
+										gap: 10,
+										marginLeft: 65, // Align with content and images
+									},
+								]}
+							>
+								<Pressable
+									onPress={() => {
+										handleOnAddImages();
+									}}
+								>
+									<Ionicons name="images-outline" size={25} color="#636263" />
+								</Pressable>
+								<Pressable
+									onPress={() => {
+										router.dismiss(); // Close the modal for now
+
+										showCamera(handleCapture);
+									}}
+								>
+									<Feather name="camera" size={25} color="#636263" />
+								</Pressable>
+							</View>
+						</View>
+					</ScrollView>
+
+					<ReactAnimated.View
+						style={[
+							animatedStyle,
+							{
+								justifyContent: "flex-end",
+								alignItems: "flex-end",
+								position: "absolute",
+								width: "100%",
+								height: 70,
+								left: 0,
+								bottom: isKeyboardVisible ? -80 : -50,
+								backgroundColor: "#181818",
+							},
+						]}
+						className="p-5"
+					>
+						<TouchableOpacity activeOpacity={0.7} onPress={handleOnPost} className="rounded-3xl bg-[#5A5A5A] px-6 py-3 text-center">
+							<Text className="text-black">Post</Text>
+						</TouchableOpacity>
+					</ReactAnimated.View>
+				</KeyboardAvoidingView>
+			</SafeAreaView>
+		</ReactAnimated.View>
 	);
 }
 
