@@ -1,5 +1,5 @@
 import * as schema from "@/drizzle/schema";
-import { asc, desc } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 
 import { database } from "@/lib/database";
 import { PostFetchProps } from "@/types/api/post";
@@ -55,10 +55,27 @@ export const Insert = async (content: string, images?: string[]) => {
 	}
 };
 
+export const Delete = async (id: number) => {
+	try {
+		await database.delete(schema.posts).where(eq(schema.posts.id, id));
+		await database.delete(schema.images).where(eq(schema.images.postId, id));
+
+		return {
+			error: false,
+			message: "Post deleted successfully!",
+		};
+	} catch (error) {
+		return {
+			error: true,
+			message: `Error deleting post, Error Message ${error}`,
+		};
+	}
+};
+
 export const Fetch = async (): Promise<PostFetchProps[] | undefined> => {
 	try {
 		const posts = await database.select().from(schema.posts).orderBy(desc(schema.posts.createdAt)); // finds all posts and orders them by createdAt in descending order
-		const images = await database.select().from(schema.images); // finds all images, this is not efficient but it's fine for now
+		const images = await database.select().from(schema.images); // finds all images that are associated with a post
 
 		const postsWithImages = posts.map((post) => {
 			const postImages = images.filter((image) => image.postId === post.id).map((image) => image.image);
