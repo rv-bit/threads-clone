@@ -19,7 +19,7 @@ const CreatePostCard = (props: CreatePostCardProps) => {
 
 	const navigateToCreatePost = (state?: string) => {
 		router.push({
-			pathname: "/new-post",
+			pathname: `/new-post`,
 		});
 	};
 
@@ -42,7 +42,6 @@ const CreatePostCard = (props: CreatePostCardProps) => {
 					<View className="flex-row items-center justify-start gap-4">
 						<Pressable
 							onPress={() => {
-								console.log("send to new post with state to select image");
 								navigateToCreatePost("select-image");
 							}}
 						>
@@ -51,7 +50,6 @@ const CreatePostCard = (props: CreatePostCardProps) => {
 
 						<Pressable
 							onPress={() => {
-								console.log("send to new post with state to take photo");
 								navigateToCreatePost("take-photo");
 							}}
 						>
