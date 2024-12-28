@@ -15,6 +15,8 @@ import migrations from "@/drizzle/migrations/migrations";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { database, sqlInstance } from "@/lib/database";
 
+import { CameraProvider } from "@/components/ui/Camera";
+
 export const unstable_settings = {
 	// Ensure that reloading on `/modal` keeps a back button present.
 	initialRouteName: "index",
@@ -61,28 +63,30 @@ function RootLayoutNav() {
 	return (
 		<SafeAreaProvider>
 			<GestureHandlerRootView>
-				<Stack
-					screenOptions={{
-						headerShown: false,
-					}}
-				>
-					<Stack.Screen
-						name="(tabs)"
-						options={{
-							headerTitle: "",
+				<CameraProvider>
+					<Stack
+						screenOptions={{
 							headerShown: false,
 						}}
-					/>
+					>
+						<Stack.Screen
+							name="(tabs)"
+							options={{
+								headerTitle: "",
+								headerShown: false,
+							}}
+						/>
 
-					<Stack.Screen
-						name="new-post"
-						options={{
-							presentation: "modal",
-							animation: "slide_from_bottom",
-							headerShown: false,
-						}}
-					/>
-				</Stack>
+						<Stack.Screen
+							name="new-post"
+							options={{
+								presentation: "modal",
+								animation: "slide_from_bottom",
+								headerShown: false,
+							}}
+						/>
+					</Stack>
+				</CameraProvider>
 			</GestureHandlerRootView>
 		</SafeAreaProvider>
 	);
