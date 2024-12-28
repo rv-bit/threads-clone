@@ -7,7 +7,7 @@ import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
 import { cn } from "@/lib/utils";
-import { Insert } from "@/api/post";
+import { InsertPost } from "@/api/post";
 
 import { usePostFormStore } from "@/stores/useCreatePost";
 
@@ -17,11 +17,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useCamera } from "@/components/ui/Camera";
 
 export default function CreatePost() {
-	const { showCamera } = useCamera();
-
 	const inputRef = useRef<TextInput>(null);
-	const translateY = useSharedValue(0);
+
+	const { showCamera } = useCamera();
 	const { formData, setFormData } = usePostFormStore();
+
+	const translateY = useSharedValue(0);
 
 	const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
@@ -41,7 +42,7 @@ export default function CreatePost() {
 		purifyData.content = purifyData.content.trim(); // remove any leading/trailing whitespace
 		purifyData.content = purifyData.content.replace(/<[^>]*>?/gm, ""); // remove any HTML tags
 
-		const { error, message } = await Insert(purifyData.content, purifyData.images);
+		const { error, message } = await InsertPost(purifyData.content, purifyData.images);
 
 		if (error) {
 			Alert.alert("Error", message);
@@ -85,10 +86,8 @@ export default function CreatePost() {
 	}, [formData]);
 
 	const handleCapture = (image: string) => {
-		console.log("Captured image:", image);
 		router.push("/new-post"); // Close the camera view after capturing the image
 
-		// Handle the captured image (e.g., save or upload)
 		setFormData((prevData) => ({
 			...prevData,
 			images: [...prevData.images, image],
