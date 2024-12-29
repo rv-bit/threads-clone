@@ -256,21 +256,23 @@ const PostCard = (props: PostCardProps) => {
 
 			<View style={{ flex: 1 }}>
 				{/* Header Section */}
-				<View className={cn("flex-1 flex-row gap-3 p-3 px-5 pb-0", props.content.length > 1 ? "items-start" : "items-center")}>
+				<View className={cn("flex-1 flex-row gap-3 p-3 px-5 pb-0", props.content.length > 0 ? "items-start" : "items-center")}>
 					<Image source={{ uri: props.avatar }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 5 }} />
 
 					<View className="flex-1 flex-col">
-						<View className="flex-row items-center justify-between gap-2">
+						<View className="relative flex-row items-center justify-between gap-2">
 							<View className="flex-row gap-2">
-								<Text className="text-md font-extrabold text-white">{props.username || "username"}</Text>
-								<Text className="text-md text-gray-500">{props.date || "2h"}</Text>
+								<Text className="text-lg font-extrabold text-white">{props.username || "username"}</Text>
+								<Text className="text-lg text-gray-500">{props.date || "2h"}</Text>
 							</View>
-							<Pressable onPress={() => handleOpenModal()}>
+
+							{/* The ContextIcon stays in place without affecting layout */}
+							<Pressable onPress={() => handleOpenModal()} style={{ position: "absolute", right: -2, top: 0.1 }}>
 								<ContextIcon fill="#636263" strokeWidth={0} width={32} height={32} />
 							</Pressable>
 						</View>
 
-						{props.content.length > 0 && <Text className="text-md text-white">{props.content}</Text>}
+						{props.content.length > 0 && <Text className="text-lg text-white">{props.content}</Text>}
 					</View>
 				</View>
 
@@ -299,8 +301,8 @@ const PostCard = (props: PostCardProps) => {
 										<Image
 											source={{ uri: image }}
 											style={{
-												width: 150, // Adjust width to your preference
-												height: 300,
+												width: 250, // Adjust width to your preference
+												height: 350,
 												borderRadius: 5,
 											}}
 										/>

@@ -217,11 +217,11 @@ export default function CreatePost() {
 						}}
 					>
 						<View className="w-full flex-row items-start justify-start gap-3" style={styles.paddingStyles}>
-							<Image source={{ uri: "https://randomuser.me/api/portraits/men/75.jpg" }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 2 }} />
+							<Image source={{ uri: "https://randomuser.me/api/portraits/men/75.jpg" }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 2, backgroundColor: "gray" }} />
 
 							<View className="flex-1 flex-col items-start justify-start gap-3">
 								<View className="flex-col items-start justify-start">
-									<Text className="text-md font-extrabold text-white">rsvsbb</Text>
+									<Text className="text-lg font-extrabold text-white">rsvsbb</Text>
 									<TextInput
 										ref={inputRef}
 										multiline={true}
@@ -231,7 +231,7 @@ export default function CreatePost() {
 										onChangeText={(text) => {
 											handleContentChange(text);
 										}}
-										className={cn("rounded-md p-0 text-sm placeholder:color-gray-500", "text-white")}
+										className={cn("rounded-md p-0 text-lg placeholder:color-gray-500", "text-white")}
 										style={{
 											textAlignVertical: "top",
 										}}
@@ -275,8 +275,8 @@ export default function CreatePost() {
 												<Image
 													source={{ uri: image }}
 													style={{
-														width: 150, // Adjust width to your preference
-														height: 250,
+														width: 250, // Adjust width to your preference
+														height: 350,
 														borderRadius: 5,
 													}}
 												/>
@@ -290,10 +290,10 @@ export default function CreatePost() {
 							<View
 								style={[
 									{
-										marginTop: formData.images.length > 0 ? 15 : 5,
+										marginTop: 15,
 										flexDirection: "row",
 										alignItems: "flex-start",
-										gap: 10,
+										gap: 16,
 										marginLeft: 65, // Align with content and images
 									},
 								]}
