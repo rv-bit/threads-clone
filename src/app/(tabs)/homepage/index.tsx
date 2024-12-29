@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { View, SafeAreaView, RefreshControl } from "react-native";
+import { View, SafeAreaView, RefreshControl, Button } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 
-import { FetchPosts } from "@/api/post";
+import { DeletePost, FetchPosts } from "@/api/post";
 import { usePostStore } from "@/stores/usePosts";
 
 import { PostFetchProps } from "@/types/api/post";
@@ -15,8 +15,39 @@ import Input from "@/components/ui/Input";
 export default function Home() {
 	const { posts, setPosts } = usePostStore();
 
+	const [isSelectionMode, setIsSelectionMode] = useState(false);
+	const [selectedToDelete, setSelectedToDelete] = useState<number[]>([]);
+
 	const [searchParams, setSearchParams] = useState<string>("");
 	const [refreshing, setRefreshing] = useState<boolean>(false);
+
+	const handleLongPress = (postId: number) => {
+		setIsSelectionMode(true);
+		toggleSelect(postId);
+	};
+
+	const toggleSelect = (postId: number) => {
+		setSelectedToDelete((prev) => (prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]));
+	};
+
+	const handleDeleteSelectedPosts = useCallback(async () => {
+		setIsSelectionMode(false);
+
+		if (selectedToDelete.length === 0) {
+			return;
+		}
+
+		const postsToBeDeleted = await Promise.all(selectedToDelete.map((id) => DeletePost(id)));
+
+		if (!postsToBeDeleted) {
+			return;
+		}
+
+		const updatedPosts = posts?.filter((post) => !selectedToDelete.includes(post.id));
+
+		setPosts(updatedPosts);
+		setSelectedToDelete([]);
+	}, [selectedToDelete]);
 
 	const handleFetch = useCallback(async () => {
 		const posts = await FetchPosts();
@@ -68,23 +99,42 @@ export default function Home() {
 
 			<FlatList
 				style={{ width: "100%", flex: 1 }}
+				contentContainerStyle={{
+					// @ts-ignore
+					color: "white",
+					paddingBottom: isSelectionMode ? 90 : 0,
+				}}
 				data={filteredPosts}
 				ListHeaderComponent={<CreatePostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" />}
-				renderItem={({ item }) => (
-					<PostCard
-						key={item.id}
-						id={item.id}
-						username="rsvsbb"
-						avatar="https://randomuser.me/api/portraits/men/75.jpg"
-						content={item.content}
-						images={item.images}
-						liked={item.liked}
-						date={item.dateTimeStamp.toLocaleTimeString()}
-					/>
-				)}
+				renderItem={({ item }) => {
+					return (
+						<PostCard
+							key={item.id}
+							id={item.id}
+							username="rsvsbb"
+							avatar="https://randomuser.me/api/portraits/men/75.jpg"
+							content={item.content}
+							images={item.images}
+							imageLinks={item.imageLinks}
+							liked={item.liked}
+							date={item.dateTimeStamp.toLocaleTimeString()}
+							isSelectionMode={isSelectionMode}
+							isSelected={selectedToDelete.includes(item.id)}
+							onLongPress={() => handleLongPress(item.id)}
+							onSelect={() => toggleSelect(item.id)}
+						/>
+					);
+				}}
 				keyExtractor={(item) => item.id.toString()}
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
 			/>
+
+			{isSelectionMode && (
+				<View className="absolute bottom-0 h-fit w-full flex-1 flex-row items-center justify-between bg-[#181818] p-5 pb-2">
+					<Button title="Delete" onPress={() => handleDeleteSelectedPosts()} />
+					<Button title="Cancel" onPress={() => setIsSelectionMode(false)} />
+				</View>
+			)}
 		</SafeAreaView>
 	);
 }

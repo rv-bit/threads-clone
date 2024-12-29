@@ -1,12 +1,17 @@
-import { useCallback, useState } from "react";
-import * as Network from "expo-network";
+import React, { useCallback, useMemo, useState } from "react";
 
 import { Image, Pressable, ScrollView, Text, TouchableOpacity, View, Dimensions, Share, Alert } from "react-native";
+import Checkbox from "expo-checkbox";
+
+import * as Network from "expo-network";
+import * as Crypto from "expo-crypto";
+import * as ImageManipulator from "expo-image-manipulator";
 
 import { cn } from "@/lib/utils";
 
 import { DeletePost } from "@/api/post";
 import { DeleteLike, InsertLike } from "@/api/likes";
+import { UpdateImageLinks } from "@/api/images";
 
 import { PostCardProps } from "@/types/posts";
 
@@ -18,6 +23,38 @@ import ShareIcon from "@/components/icons/ShareIcon";
 
 import ContextModal from "@/components/ui/ContextModal"; // Adjust the import path as needed
 import Separator from "@/components/ui/Separator";
+
+const processImage = async (dataURI: string): Promise<string> => {
+	const processedImage = await ImageManipulator.manipulateAsync(
+		dataURI,
+		[], // No transformations
+		{
+			compress: 1,
+			format: ImageManipulator.SaveFormat.PNG,
+		},
+	);
+
+	return processedImage.uri; // Returns the file URI
+};
+
+const getFormData = async (imageURL: string | undefined): Promise<FormData> => {
+	if (!imageURL) {
+		throw new Error("imageURL is undefined");
+	}
+
+	// Process the image and get its URI
+	const processedURI = await processImage(imageURL);
+
+	// Construct a simple object that FormData can accept (no need for Blob creation)
+	const formData = new FormData();
+	formData.append("image", {
+		uri: processedURI,
+		name: `${Crypto.randomUUID()}.png`,
+		type: "image/png", // Use the correct MIME type for the image
+	} as unknown as Blob); // If needed, you can cast it to 'Blob' to satisfy TypeScript typing
+
+	return formData;
+};
 
 const PostCard = (props: PostCardProps) => {
 	const { posts, setPosts } = usePostStore();
@@ -80,17 +117,53 @@ const PostCard = (props: PostCardProps) => {
 		[posts, setPosts],
 	);
 
-	const handleOnShare = useCallback(async (shareContent: string) => {
-		const network = await Network.getNetworkStateAsync();
+	const sharedImageLinks = useMemo(() => {
+		const post = posts?.find((post) => post.id === props.id);
+		const { imageLinks } = post || {};
 
-		if (network.type !== Network.NetworkStateType.CELLULAR && network.type !== Network.NetworkStateType.WIFI) {
-			Alert.alert("No internet connection");
-			return;
-		}
+		return imageLinks;
+	}, [posts, props.id]);
 
+	const handleUploadImages = useCallback(async (images: Record<number, string>): Promise<Record<number, string>> => {
+		const uploadPromises = Object.entries(images).map(async ([imageId, image]) => {
+			try {
+				const response = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.EXPO_PUBLIC_IMG_BB_API_KEY}`, {
+					method: "POST",
+					body: await getFormData(image),
+				});
+
+				const data = await response.json();
+				const link = data.data.url;
+				return { imageId, link };
+			} catch (error) {
+				return { imageId, link: null };
+			}
+		});
+
+		const results = await Promise.all(uploadPromises);
+		const uploadedImageLinks = results.reduce(
+			(acc, { imageId, link }) => {
+				acc[parseInt(imageId)] = link;
+				return acc;
+			},
+			{} as Record<number, string>,
+		);
+
+		return uploadedImageLinks;
+	}, []);
+
+	const handleShareIntent = useCallback(async (shareContent: string, shareImageLinks: string[]) => {
 		try {
+			let content = shareContent || "";
+
+			if (shareImageLinks.some((link) => link !== "")) {
+				shareImageLinks.map((link) => {
+					content = `${content}\n${link}`;
+				});
+			}
+
 			const result = await Share.share({
-				message: shareContent + "\n\nShared via Local Social App",
+				message: content + "\n\nShared via Local Social App",
 			});
 
 			if (result.action === Share.sharedAction) {
@@ -107,89 +180,160 @@ const PostCard = (props: PostCardProps) => {
 		}
 	}, []);
 
+	const handleOnShare = useCallback(
+		async (postId: number) => {
+			const post = posts?.find((post) => post.id === postId);
+
+			const { content: shareContent, images: shareImages } = post || {};
+			const shareImageLinks = sharedImageLinks;
+
+			const network = await Network.getNetworkStateAsync();
+
+			if (network.type !== Network.NetworkStateType.CELLULAR && network.type !== Network.NetworkStateType.WIFI) {
+				Alert.alert("No internet connection");
+				return;
+			}
+
+			try {
+				if (shareImageLinks?.some((link) => link === "") && shareImages) {
+					const uploadedImageLinks = await handleUploadImages(shareImages);
+					const imageLinks = Object.values(uploadedImageLinks).filter((link) => link !== "");
+
+					// Update the post state with the new image links
+					const updatedPosts = posts?.map((post) => {
+						if (post.id === postId) {
+							return {
+								...post,
+								imageLinks: imageLinks,
+							};
+						}
+
+						return post;
+					});
+
+					setPosts(updatedPosts);
+
+					const updateResult = await UpdateImageLinks(uploadedImageLinks);
+					if (updateResult.error) {
+						console.error(updateResult.message);
+					} else {
+						console.log(updateResult.message);
+					}
+
+					handleShareIntent(shareContent || "", imageLinks);
+					return;
+				}
+
+				handleShareIntent(shareContent || "", shareImageLinks || []);
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[posts, setPosts],
+	);
+
 	const screenWidth = Dimensions.get("window").width;
 
 	return (
-		<Pressable onPress={() => {}} className="z-10 h-fit w-full border-b-[1px] border-white/10">
-			{/* Header Section */}
-			<View className={cn("flex-1 flex-row gap-3 p-3 px-5 pb-0", props.content.length > 1 ? "items-start" : "items-center")}>
-				<Image source={{ uri: props.avatar }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 5 }} />
-
-				<View className="flex-1 flex-col">
-					<View className="flex-row items-center justify-between gap-2">
-						<View className="flex-row gap-2">
-							<Text className="text-md font-extrabold text-white">{props.username || "username"}</Text>
-							<Text className="text-md text-gray-500">{props.date || "2h"}</Text>
-						</View>
-						<Pressable onPress={() => handleOpenModal()}>
-							<ContextIcon fill="#636263" strokeWidth={0} width={32} height={32} />
-						</Pressable>
-					</View>
-
-					{props.content.length > 0 && <Text className="text-md text-white">{props.content}</Text>}
-				</View>
-			</View>
-
-			{/* Images and Actions Section */}
-			<View style={{ width: "100%" }}>
-				{props.images && (
-					<View
-						style={{
-							marginTop: 5,
-							paddingHorizontal: 10,
-							width: screenWidth, // Use full screen width
+		<Pressable
+			onLongPress={() => {
+				props.onLongPress && props.onLongPress(props.id);
+			}}
+			className="z-10 h-fit w-full flex-row items-center justify-evenly border-b-[1px] border-white/10"
+		>
+			{props.isSelectionMode && (
+				<View style={{ width: 50, height: 50, justifyContent: "center", alignItems: "center", paddingLeft: 10 }}>
+					<Checkbox
+						style={{ height: 40, width: 40 }}
+						value={props.isSelected}
+						onValueChange={() => {
+							props.onSelect && props.onSelect(props.id);
 						}}
-					>
-						<ScrollView
-							horizontal
-							showsHorizontalScrollIndicator={false}
-							contentContainerStyle={{
-								flexDirection: "row",
-								alignItems: "center",
-								gap: 10,
-								marginLeft: 50, // Align starting point with content/actions
+					/>
+				</View>
+			)}
+
+			<View style={{ flex: 1 }}>
+				{/* Header Section */}
+				<View className={cn("flex-1 flex-row gap-3 p-3 px-5 pb-0", props.content.length > 1 ? "items-start" : "items-center")}>
+					<Image source={{ uri: props.avatar }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 5 }} />
+
+					<View className="flex-1 flex-col">
+						<View className="flex-row items-center justify-between gap-2">
+							<View className="flex-row gap-2">
+								<Text className="text-md font-extrabold text-white">{props.username || "username"}</Text>
+								<Text className="text-md text-gray-500">{props.date || "2h"}</Text>
+							</View>
+							<Pressable onPress={() => handleOpenModal()}>
+								<ContextIcon fill="#636263" strokeWidth={0} width={32} height={32} />
+							</Pressable>
+						</View>
+
+						{props.content.length > 0 && <Text className="text-md text-white">{props.content}</Text>}
+					</View>
+				</View>
+
+				{/* Images and Actions Section */}
+				<View style={{ width: "100%" }}>
+					{props.images && (
+						<View
+							style={{
+								marginTop: 5,
+								paddingHorizontal: 10,
+								width: screenWidth, // Use full screen width
 							}}
 						>
-							{props.images.map((image, index) => (
-								<Pressable key={index}>
-									<Image
-										source={{ uri: image }}
-										style={{
-											width: 150, // Adjust width to your preference
-											height: 300,
-											borderRadius: 5,
-										}}
-									/>
-								</Pressable>
-							))}
-						</ScrollView>
+							<ScrollView
+								horizontal
+								showsHorizontalScrollIndicator={false}
+								contentContainerStyle={{
+									flexDirection: "row",
+									alignItems: "center",
+									gap: 10,
+									marginLeft: 50, // Align starting point with content/actions
+								}}
+							>
+								{Object.values(props.images).map((image, index) => (
+									<Pressable key={index}>
+										<Image
+											source={{ uri: image }}
+											style={{
+												width: 150, // Adjust width to your preference
+												height: 300,
+												borderRadius: 5,
+											}}
+										/>
+									</Pressable>
+								))}
+							</ScrollView>
+						</View>
+					)}
+
+					{/* Actions Section (Like and Share Icons) */}
+					<View
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							marginTop: 10,
+							paddingHorizontal: 55, // Align with content and images
+						}}
+					>
+						<Pressable
+							onPress={() => {
+								handleOnLike(props.id);
+							}}
+						>
+							<LikeIcon fill={props.liked ? "#ff0000" : "#181818"} strokeWidth={props.liked ? 0 : 2} width={38} height={38} />
+						</Pressable>
+
+						<Pressable
+							onPress={() => {
+								handleOnShare(props.id);
+							}}
+						>
+							<ShareIcon fill="none" strokeWidth={2} width={38} height={38} />
+						</Pressable>
 					</View>
-				)}
-
-				{/* Actions Section (Like and Share Icons) */}
-				<View
-					style={{
-						flexDirection: "row",
-						alignItems: "center",
-						marginTop: 10,
-						paddingHorizontal: 55, // Align with content and images
-					}}
-				>
-					<Pressable
-						onPress={() => {
-							handleOnLike(props.id);
-						}}
-					>
-						<LikeIcon fill={props.liked ? "#ff0000" : "#181818"} strokeWidth={props.liked ? 0 : 2} width={38} height={38} />
-					</Pressable>
-
-					<Pressable
-						onPress={() => {
-							handleOnShare(props.content);
-						}}
-					>
-						<ShareIcon fill="none" strokeWidth={2} width={38} height={38} />
-					</Pressable>
 				</View>
 			</View>
 
