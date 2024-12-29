@@ -9,6 +9,12 @@ export interface PostCardProps {
 	date?: string;
 	avatar: string;
 	content: string;
-	images?: string[];
+	images?: Record<number, string>;
+	imageLinks?: string[];
 	liked?: boolean;
+
+	isSelectionMode?: boolean;
+	isSelected?: boolean;
+	onLongPress?: (postId: number) => void;
+	onSelect?: (postId: number) => void;
 }
