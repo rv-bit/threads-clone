@@ -8,6 +8,7 @@ export const images = table("images", {
 	id: integer().primaryKey({ autoIncrement: true }),
 	postId: integer().notNull(),
 	image: text().notNull(), // this is going to be a base64 string
+	imageLink: text("imageLink").default(""),
 	createdAt: integer({ mode: "timestamp" })
 		.default(sql`(strftime('%s', 'now'))`)
 		.notNull(),
