@@ -3,7 +3,7 @@ import { Image, Pressable, Text, View, Alert, ScrollView, Dimensions, TextInput,
 import { SafeAreaView } from "react-native-safe-area-context";
 import ReactAnimated, { FadeIn, useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
 import { cn } from "@/lib/utils";
@@ -17,6 +17,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useCamera } from "@/components/ui/Camera";
 
 export default function CreatePost() {
+	const { action } = useLocalSearchParams();
+
 	const inputRef = useRef<TextInput>(null);
 
 	const { showCamera } = useCamera();
@@ -93,6 +95,26 @@ export default function CreatePost() {
 			images: [...prevData.images, image],
 		}));
 	};
+
+	useEffect(() => {
+		if (!action) {
+			return;
+		}
+
+		switch (action) {
+			case "select-image":
+				handleOnAddImages();
+				break;
+			case "take-photo":
+				router.dismiss(); // Close the modal for now
+				showCamera(handleCapture);
+				break;
+			default:
+				break;
+		}
+
+		return () => {};
+	}, [action, handleOnAddImages, showCamera, handleCapture]);
 
 	useEffect(() => {
 		if (inputRef.current) {
