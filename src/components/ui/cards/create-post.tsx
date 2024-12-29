@@ -17,16 +17,19 @@ type CreatePostCardProps = {
 const CreatePostCard = (props: CreatePostCardProps) => {
 	const router = useRouter();
 
-	const navigateToCreatePost = (state?: string) => {
+	const navigateToCreatePost = (state: string) => {
 		router.push({
 			pathname: `/new-post`,
+			params: {
+				action: state,
+			},
 		});
 	};
 
 	return (
 		<Pressable
 			onPress={() => {
-				navigateToCreatePost();
+				navigateToCreatePost("default");
 			}}
 			className={cn("w-full border-b-[1px] border-white/10 p-5", props.className)}
 		>

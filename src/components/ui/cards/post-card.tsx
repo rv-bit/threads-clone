@@ -23,6 +23,7 @@ import ShareIcon from "@/components/icons/ShareIcon";
 
 import ContextModal from "@/components/ui/ContextModal"; // Adjust the import path as needed
 import Separator from "@/components/ui/Separator";
+import { router } from "expo-router";
 
 const processImage = async (dataURI: string): Promise<string> => {
 	const processedImage = await ImageManipulator.manipulateAsync(
@@ -340,7 +341,19 @@ const PostCard = (props: PostCardProps) => {
 			{/* Context Modal */}
 			<ContextModal visible={modalVisible} onClose={handleCloseModal}>
 				<View className="w-full flex-1 flex-col items-start justify-start gap-0">
-					<TouchableOpacity activeOpacity={0.7} onPress={() => {}} className="w-full items-start justify-start rounded-xl rounded-b-none bg-[#2A2A2A] p-5">
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => {
+							router.push({
+								pathname: `/edit-post/[id]`,
+								params: {
+									id: props.id,
+								},
+							});
+							handleCloseModal();
+						}}
+						className="w-full items-start justify-start rounded-xl rounded-b-none bg-[#2A2A2A] p-5"
+					>
 						<Text className="text-lg font-extrabold text-white">Edit</Text>
 					</TouchableOpacity>
 					<Separator />
