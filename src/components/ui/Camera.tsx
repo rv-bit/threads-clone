@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Button } from "react-native";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Button, Alert } from "react-native";
 import { Dimensions } from "react-native";
+
+import * as Linking from "expo-linking";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 
 type CameraContextProps = {
 	showCamera: (onCapture: (image: string) => void) => void;
@@ -53,9 +55,19 @@ export const useCamera = () => {
 };
 
 const CameraViewComponent = ({ onCapture, onClose }: { onCapture: (image: string) => void; onClose: () => void }) => {
-	const [facing, setFacing] = useState<CameraType>("back");
 	const [permission, requestPermission] = useCameraPermissions();
+	const [facing, setFacing] = useState<CameraType>("back");
 	const cameraRef = React.useRef<CameraView | null>(null);
+
+	const handleRequestPermission = async () => {
+		const result = await requestPermission();
+		if (!result.granted) {
+			Alert.alert("Permission Required", "Camera access is needed to use this feature. Please enable it in settings.", [
+				{ text: "Cancel", style: "cancel" },
+				{ text: "Open Settings", onPress: () => Linking.openSettings() },
+			]);
+		}
+	};
 
 	if (!permission) {
 		return <Text>Loading...</Text>;
@@ -65,7 +77,7 @@ const CameraViewComponent = ({ onCapture, onClose }: { onCapture: (image: string
 		return (
 			<View style={styles.permissionView}>
 				<Text style={styles.permissionText}>Camera permission is required.</Text>
-				<Button title="Grant Permission" onPress={requestPermission} />
+				<Button title="Grant Permission" onPress={handleRequestPermission} />
 			</View>
 		);
 	}
@@ -74,7 +86,6 @@ const CameraViewComponent = ({ onCapture, onClose }: { onCapture: (image: string
 		if (!cameraRef.current) return;
 
 		const photo = await cameraRef.current.takePictureAsync();
-		console.log(photo);
 
 		if (photo && onCapture) {
 			onCapture(photo?.uri);

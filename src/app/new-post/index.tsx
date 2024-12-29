@@ -3,8 +3,9 @@ import { Image, Pressable, Text, View, Alert, ScrollView, Dimensions, TextInput,
 import { SafeAreaView } from "react-native-safe-area-context";
 import ReactAnimated, { FadeIn, useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 
-import { router, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import * as Linking from "expo-linking";
+import { router, useLocalSearchParams } from "expo-router";
 
 import { cn } from "@/lib/utils";
 import { InsertPost } from "@/api/post";
@@ -17,6 +18,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useCamera } from "@/components/ui/Camera";
 
 export default function CreatePost() {
+	const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
 	const { action } = useLocalSearchParams();
 
 	const inputRef = useRef<TextInput>(null);
@@ -34,6 +36,39 @@ export default function CreatePost() {
 			content: value,
 		}));
 	}, []);
+
+	const handleOpenImagePicker = useCallback(async () => {
+		if (!status || (status && !status.granted)) {
+			Alert.alert("Permission Required", "Please grant permission to access the photo library. To be able to select images for your post.", [
+				{
+					text: "Cancel",
+					onPress: () => {},
+				},
+				{
+					text: "Grant",
+					onPress: async () => {
+						const permission = await requestPermission();
+
+						if (!permission || (permission && !permission.granted)) {
+							Linking.openSettings();
+							return;
+						}
+					},
+				},
+			]);
+			return;
+		}
+
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ["images"],
+			allowsEditing: false,
+			aspect: [16, 9],
+			quality: 0.6,
+			base64: true,
+		});
+
+		return result;
+	}, [status, requestPermission]);
 
 	const handleOnPost = useCallback(async () => {
 		const purifyData = {
@@ -63,20 +98,11 @@ export default function CreatePost() {
 	}, [formData]);
 
 	const handleOnAddImages = useCallback(async () => {
-		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+		const result = await handleOpenImagePicker();
 
-		if (status !== "granted") {
-			Alert.alert("Permission required", "Camera roll permissions are needed to add images.");
+		if (!result) {
 			return;
 		}
-
-		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ["images"],
-			allowsEditing: true,
-			aspect: [4, 3],
-			quality: 0.6,
-			base64: true,
-		});
 
 		if (!result.canceled) {
 			const uri = `data:image/png;base64,${(result.assets[0] as { base64: string }).base64}`;
@@ -85,7 +111,7 @@ export default function CreatePost() {
 				images: [...prevData.images, uri],
 			}));
 		}
-	}, [formData]);
+	}, [formData, handleOpenImagePicker]);
 
 	const handleCapture = (image: string) => {
 		router.push("/new-post"); // Close the camera view after capturing the image
@@ -101,20 +127,33 @@ export default function CreatePost() {
 			return;
 		}
 
-		switch (action) {
-			case "select-image":
-				handleOnAddImages();
-				break;
-			case "take-photo":
+		const handleAction = async () => {
+			if (action === "select-image") {
+				const result = await handleOpenImagePicker();
+
+				if (!result) {
+					return;
+				}
+
+				if (!result.canceled) {
+					const uri = `data:image/png;base64,${(result.assets[0] as { base64: string }).base64}`;
+					setFormData((prevData) => ({
+						...prevData,
+						images: [...prevData.images, uri],
+					}));
+				}
+			} else if (action === "take-photo") {
 				router.dismiss(); // Close the modal for now
 				showCamera(handleCapture);
-				break;
-			default:
-				break;
-		}
+			}
+		};
 
-		return () => {};
-	}, [action, handleOnAddImages, showCamera, handleCapture]);
+		const timeout = setTimeout(() => {
+			handleAction();
+		}, 200);
+
+		return () => clearTimeout(timeout);
+	}, [action, handleOpenImagePicker, showCamera]);
 
 	useEffect(() => {
 		if (inputRef.current) {
