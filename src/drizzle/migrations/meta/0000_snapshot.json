@@ -1,11 +1,11 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "db7b61f3-6781-4f20-a6c7-75f4fcc4ddac",
+  "id": "601a82af-1569-4e0c-a32e-08c549d60b19",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "comments": {
-      "name": "comments",
+    "images": {
+      "name": "images",
       "columns": {
         "id": {
           "name": "id",
@@ -14,52 +14,39 @@
           "notNull": true,
           "autoincrement": true
         },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "ownerId": {
-          "name": "ownerId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "postId": {
           "name": "postId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "image": {
+          "name": "image",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "imageLink": {
+          "name": "imageLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
         },
         "createdAt": {
           "name": "createdAt",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false,
           "default": "(strftime('%s', 'now'))"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "postId_fkey": {
-          "name": "postId_fkey",
-          "tableFrom": "comments",
-          "tableTo": "posts",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -74,13 +61,6 @@
           "notNull": true,
           "autoincrement": true
         },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "content": {
           "name": "content",
           "type": "text",
@@ -92,7 +72,7 @@
           "name": "createdAt",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false,
           "default": "(strftime('%s', 'now'))"
         }
@@ -113,16 +93,9 @@
           "notNull": true,
           "autoincrement": true
         },
-        "ownerId": {
-          "name": "ownerId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "postId": {
           "name": "postId",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -131,7 +104,7 @@
           "name": "createdAt",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false,
           "default": "(strftime('%s', 'now'))"
         }
