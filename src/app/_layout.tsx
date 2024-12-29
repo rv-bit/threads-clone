@@ -85,6 +85,15 @@ function RootLayoutNav() {
 								headerShown: false,
 							}}
 						/>
+
+						<Stack.Screen
+							name="edit-post"
+							options={{
+								presentation: "modal",
+								animation: "slide_from_bottom",
+								headerShown: false,
+							}}
+						/>
 					</Stack>
 				</CameraProvider>
 			</GestureHandlerRootView>

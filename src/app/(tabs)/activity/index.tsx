@@ -1,60 +1,17 @@
-import * as schema from "@/drizzle/schema";
-
 import { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+
+import { Text, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import PostCard from "@/components/ui/pages/post-card";
-
-import { Fetch } from "@/api/post";
 
 export default function Activity() {
 	return (
-		<SafeAreaView className="flex-1 flex-col items-start justify-center p-5">
+		<SafeAreaView className="flex-1 flex-col items-start justify-center p-5 px-0">
+			<View className="mt-5 h-fit w-full items-center justify-center bg-[#181818] p-5 pb-2">
+				{/* <Input value={searchParams} onChange={(query) => setSearchParams(query)} placeholder="Search" className="h-14 w-full rounded-xl bg-[#1E1E1E] px-2 text-white" /> */}
+				<Text className="text-2xl font-bold text-white">Activity</Text>
+			</View>
 			<ScrollView className="h-full w-full flex-1">
-				<PostCard
-					username="rsvsbb"
-					avatar="https://randomuser.me/api/portraits/men/75.jpg"
-					content="Hello, World! dawoijdwaoi dsj diojwa djioajwojd sjoi djwaoij daoiwj doijas ij"
-					liked={true}
-					images={[
-						"https://cdn.discordapp.com/attachments/1127585380556877897/1279222724840919130/image.png?ex=676e90c0&is=676d3f40&hm=a3dc1554cc7b26e8d5612d410aa6abcec984daffca874d3043ae7a0b0183fbeb&",
-						"https://cdn.discordapp.com/attachments/1127585380556877897/1279222724840919130/image.png?ex=676e90c0&is=676d3f40&hm=a3dc1554cc7b26e8d5612d410aa6abcec984daffca874d3043ae7a0b0183fbeb&",
-						"https://cdn.discordapp.com/attachments/1127585380556877897/1279222724840919130/image.png?ex=676e90c0&is=676d3f40&hm=a3dc1554cc7b26e8d5612d410aa6abcec984daffca874d3043ae7a0b0183fbeb&",
-						"https://cdn.discordapp.com/attachments/1127585380556877897/1279222724840919130/image.png?ex=676e90c0&is=676d3f40&hm=a3dc1554cc7b26e8d5612d410aa6abcec984daffca874d3043ae7a0b0183fbeb&",
-					]}
-				/>
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
-				<PostCard username="rsvsbb" avatar="https://randomuser.me/api/portraits/men/75.jpg" content="Hello, World!" />
+				<Text className="text-2xl font-bold text-white">Activity</Text>
 			</ScrollView>
 		</SafeAreaView>
 	);

@@ -7,8 +7,8 @@ import { usePostStore } from "@/stores/usePosts";
 
 import { PostFetchProps } from "@/types/api/post";
 
-import CreatePostCard from "@/components/ui/pages/create-post";
-import PostCard from "@/components/ui/pages/post-card";
+import CreatePostCard from "@/components/ui/cards/create-post";
+import PostCard from "@/components/ui/cards/post-card";
 
 import Input from "@/components/ui/Input";
 

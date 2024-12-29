@@ -74,6 +74,34 @@ export const DeletePost = async (id: number) => {
 	}
 };
 
+export const UpdatePost = async (id: number, content: string, images?: Record<number, string>) => {
+	try {
+		const hadImages = await database.select().from(schema.images).where(eq(schema.images.postId, id));
+		const countImages = hadImages.length;
+
+		await database.update(schema.posts).set({ content }).where(eq(schema.posts.id, id));
+
+		if (hadImages && images && Object.keys(images).length !== countImages) {
+			const imageDiff = hadImages.filter((img) => !Object.values(images).includes(img.image));
+			const imageIdsToDelete = imageDiff.map((img) => img.id);
+
+			imageIdsToDelete.map(async (id) => {
+				await database.delete(schema.images).where(eq(schema.images.id, id));
+			});
+		}
+
+		return {
+			error: false,
+			message: "Post updated successfully!",
+		};
+	} catch (error) {
+		return {
+			error: true,
+			message: `Error updating post, Error Message ${error}`,
+		};
+	}
+};
+
 export const FetchPosts = async (): Promise<PostFetchProps[] | undefined> => {
 	try {
 		const posts = await database.select().from(schema.posts).orderBy(desc(schema.posts.createdAt)); // finds all posts and orders them by createdAt in descending order
