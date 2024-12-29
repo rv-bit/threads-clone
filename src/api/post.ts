@@ -38,6 +38,7 @@ export const InsertPost = async (content: string, images?: string[]) => {
 				database.insert(schema.images).values({
 					postId: insertedId,
 					image: image,
+					imageLink: "",
 				}),
 			);
 			await Promise.all(imageInsertPromises);
@@ -80,19 +81,32 @@ export const FetchPosts = async (): Promise<PostFetchProps[] | undefined> => {
 		const likes = await database.select().from(schema.likes); // finds all likes
 
 		const postsWithImages = posts.map((post) => {
-			const postImages = images.filter((image) => image.postId === post.id).map((image) => image.image);
+			const postImages = images
+				.filter((image) => image.postId === post.id)
+				.reduce(
+					(acc, image) => {
+						acc[image.id] = image.image;
+						return acc;
+					},
+					{} as Record<number, string>,
+				);
 			const postLikes = likes.filter((like) => like.postId === post.id);
+			const postImageLinks = images.filter((image) => image.postId === post.id).map((image) => image.imageLink);
 
 			return {
 				id: post.id,
 				content: post.content,
 				images: postImages,
+				imageLinks: postImageLinks,
 				liked: postLikes.length > 0,
 				dateTimeStamp: post.createdAt,
 			};
 		});
 
-		return postsWithImages;
+		return postsWithImages.map((post) => ({
+			...post,
+			imageLinks: post.imageLinks.filter((link) => link !== null) as string[],
+		}));
 	} catch (error) {
 		console.error("Error during fetch:", error);
 	}
