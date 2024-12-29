@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 
-import { Image, Pressable, ScrollView, Text, TouchableOpacity, View, Dimensions, Share, Alert } from "react-native";
+import { Image, Pressable, ScrollView, Text, TouchableOpacity, View, Dimensions, Share, Alert, ActivityIndicator } from "react-native";
+import { router } from "expo-router";
 import Checkbox from "expo-checkbox";
 
 import * as Network from "expo-network";
@@ -23,7 +24,7 @@ import ShareIcon from "@/components/icons/ShareIcon";
 
 import ContextModal from "@/components/ui/ContextModal"; // Adjust the import path as needed
 import Separator from "@/components/ui/Separator";
-import { router } from "expo-router";
+import LoadingState from "../LoadingState";
 
 const processImage = async (dataURI: string): Promise<string> => {
 	const processedImage = await ImageManipulator.manipulateAsync(
@@ -59,7 +60,9 @@ const getFormData = async (imageURL: string | undefined): Promise<FormData> => {
 
 const PostCard = (props: PostCardProps) => {
 	const { posts, setPosts } = usePostStore();
+
 	const [modalVisible, setModalVisible] = useState(false);
+	const [shareImageLinksUploadingState, setShareImageLinksUploadingState] = useState(false);
 
 	const handleOpenModal = useCallback(() => {
 		setModalVisible(true);
@@ -197,8 +200,12 @@ const PostCard = (props: PostCardProps) => {
 
 			try {
 				if (shareImageLinks?.some((link) => link === "") && shareImages) {
+					setShareImageLinksUploadingState(true);
+
 					const uploadedImageLinks = await handleUploadImages(shareImages);
 					const imageLinks = Object.values(uploadedImageLinks).filter((link) => link !== "");
+
+					setShareImageLinksUploadingState(false);
 
 					// Update the post state with the new image links
 					const updatedPosts = posts?.map((post) => {
@@ -236,142 +243,149 @@ const PostCard = (props: PostCardProps) => {
 	const screenWidth = Dimensions.get("window").width;
 
 	return (
-		<Pressable
-			onLongPress={() => {
-				props.onLongPress && props.onLongPress(props.id);
-			}}
-			className="z-10 h-fit w-full flex-row items-center justify-evenly border-b-[1px] border-white/10"
-		>
-			{props.isSelectionMode && (
-				<View style={{ width: 50, height: 50, justifyContent: "center", alignItems: "center", paddingLeft: 10 }}>
-					<Checkbox
-						style={{ height: 40, width: 40 }}
-						value={props.isSelected}
-						onValueChange={() => {
-							props.onSelect && props.onSelect(props.id);
-						}}
-					/>
-				</View>
-			)}
+		<>
+			<LoadingState visible={shareImageLinksUploadingState} className="flex-1 items-center justify-center gap-5">
+				<Text className="text-lg font-extrabold text-white">Uploading images to the cloud do not close the app...</Text>
+				<ActivityIndicator size="large" color="#ffffff" />
+			</LoadingState>
 
-			<View style={{ flex: 1 }}>
-				{/* Header Section */}
-				<View className={cn("flex-1 flex-row gap-3 p-3 px-5 pb-0", props.content.length > 0 ? "items-start" : "items-center")}>
-					<Image source={{ uri: props.avatar }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 5 }} />
+			<Pressable
+				onLongPress={() => {
+					props.onLongPress && props.onLongPress(props.id);
+				}}
+				className="z-10 h-fit w-full flex-row items-center justify-evenly border-b-[1px] border-white/10"
+			>
+				{props.isSelectionMode && (
+					<View style={{ width: 50, height: 50, justifyContent: "center", alignItems: "center", paddingLeft: 10 }}>
+						<Checkbox
+							style={{ height: 40, width: 40 }}
+							value={props.isSelected}
+							onValueChange={() => {
+								props.onSelect && props.onSelect(props.id);
+							}}
+						/>
+					</View>
+				)}
 
-					<View className="flex-1 flex-col">
-						<View className="relative flex-row items-center justify-between gap-2">
-							<View className="flex-row gap-2">
-								<Text className="text-lg font-extrabold text-white">{props.username || "username"}</Text>
-								<Text className="text-lg text-gray-500">{props.date || "2h"}</Text>
+				<View style={{ flex: 1 }}>
+					{/* Header Section */}
+					<View className={cn("flex-1 flex-row gap-3 p-3 px-5 pb-0", props.content.length > 0 ? "items-start" : "items-center")}>
+						<Image source={{ uri: props.avatar }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 5 }} />
+
+						<View className="flex-1 flex-col">
+							<View className="relative flex-row items-center justify-between gap-2">
+								<View className="flex-row gap-2">
+									<Text className="text-lg font-extrabold text-white">{props.username || "username"}</Text>
+									<Text className="text-lg text-gray-500">{props.date || "2h"}</Text>
+								</View>
+
+								{/* The ContextIcon stays in place without affecting layout */}
+								<Pressable onPress={() => handleOpenModal()} style={{ position: "absolute", right: -2, top: 0.1 }}>
+									<ContextIcon fill="#636263" strokeWidth={0} width={32} height={32} />
+								</Pressable>
 							</View>
 
-							{/* The ContextIcon stays in place without affecting layout */}
-							<Pressable onPress={() => handleOpenModal()} style={{ position: "absolute", right: -2, top: 0.1 }}>
-								<ContextIcon fill="#636263" strokeWidth={0} width={32} height={32} />
-							</Pressable>
+							{props.content.length > 0 && <Text className="text-lg text-white">{props.content}</Text>}
 						</View>
-
-						{props.content.length > 0 && <Text className="text-lg text-white">{props.content}</Text>}
 					</View>
-				</View>
 
-				{/* Images and Actions Section */}
-				<View style={{ width: "100%" }}>
-					{props.images && (
-						<View
-							style={{
-								marginTop: 5,
-								paddingHorizontal: 10,
-								width: screenWidth, // Use full screen width
-							}}
-						>
-							<ScrollView
-								horizontal
-								showsHorizontalScrollIndicator={false}
-								contentContainerStyle={{
-									flexDirection: "row",
-									alignItems: "center",
-									gap: 10,
-									marginLeft: 50, // Align starting point with content/actions
+					{/* Images and Actions Section */}
+					<View style={{ width: "100%" }}>
+						{props.images && (
+							<View
+								style={{
+									marginTop: 5,
+									paddingHorizontal: 10,
+									width: screenWidth, // Use full screen width
 								}}
 							>
-								{Object.values(props.images).map((image, index) => (
-									<Pressable key={index}>
-										<Image
-											source={{ uri: image }}
-											style={{
-												width: 250, // Adjust width to your preference
-												height: 350,
-												borderRadius: 5,
-											}}
-										/>
-									</Pressable>
-								))}
-							</ScrollView>
+								<ScrollView
+									horizontal
+									showsHorizontalScrollIndicator={false}
+									contentContainerStyle={{
+										flexDirection: "row",
+										alignItems: "center",
+										gap: 10,
+										marginLeft: 50, // Align starting point with content/actions
+									}}
+								>
+									{Object.values(props.images).map((image, index) => (
+										<Pressable key={index}>
+											<Image
+												source={{ uri: image }}
+												style={{
+													width: 250, // Adjust width to your preference
+													height: 350,
+													borderRadius: 5,
+												}}
+											/>
+										</Pressable>
+									))}
+								</ScrollView>
+							</View>
+						)}
+
+						{/* Actions Section (Like and Share Icons) */}
+						<View
+							style={{
+								flexDirection: "row",
+								alignItems: "center",
+								marginTop: 10,
+								paddingHorizontal: 55, // Align with content and images
+							}}
+						>
+							<Pressable
+								onPress={() => {
+									handleOnLike(props.id);
+								}}
+							>
+								<LikeIcon fill={props.liked ? "#ff0000" : "#181818"} strokeWidth={props.liked ? 0 : 2} width={38} height={38} />
+							</Pressable>
+
+							<Pressable
+								onPress={() => {
+									handleOnShare(props.id);
+								}}
+							>
+								<ShareIcon fill="none" strokeWidth={2} width={38} height={38} />
+							</Pressable>
 						</View>
-					)}
-
-					{/* Actions Section (Like and Share Icons) */}
-					<View
-						style={{
-							flexDirection: "row",
-							alignItems: "center",
-							marginTop: 10,
-							paddingHorizontal: 55, // Align with content and images
-						}}
-					>
-						<Pressable
-							onPress={() => {
-								handleOnLike(props.id);
-							}}
-						>
-							<LikeIcon fill={props.liked ? "#ff0000" : "#181818"} strokeWidth={props.liked ? 0 : 2} width={38} height={38} />
-						</Pressable>
-
-						<Pressable
-							onPress={() => {
-								handleOnShare(props.id);
-							}}
-						>
-							<ShareIcon fill="none" strokeWidth={2} width={38} height={38} />
-						</Pressable>
 					</View>
 				</View>
-			</View>
 
-			{/* Context Modal */}
-			<ContextModal visible={modalVisible} onClose={handleCloseModal}>
-				<View className="w-full flex-1 flex-col items-start justify-start gap-0">
-					<TouchableOpacity
-						activeOpacity={0.7}
-						onPress={() => {
-							router.push({
-								pathname: `/edit-post/[id]`,
-								params: {
-									id: props.id,
-								},
-							});
-							handleCloseModal();
-						}}
-						className="w-full items-start justify-start rounded-xl rounded-b-none bg-[#2A2A2A] p-5"
-					>
-						<Text className="text-lg font-extrabold text-white">Edit</Text>
-					</TouchableOpacity>
-					<Separator />
-					<TouchableOpacity
-						activeOpacity={0.7}
-						onPress={() => {
-							handleOnDelete(props.id);
-							handleCloseModal();
-						}}
-						className="w-full items-start justify-start rounded-xl rounded-t-none bg-[#2A2A2A] p-5"
-					>
-						<Text className="text-lg font-extrabold text-red-500">Delete</Text>
-					</TouchableOpacity>
-				</View>
-			</ContextModal>
-		</Pressable>
+				{/* Context Modal */}
+				<ContextModal visible={modalVisible} onClose={handleCloseModal}>
+					<View className="w-full flex-1 flex-col items-start justify-start gap-0">
+						<TouchableOpacity
+							activeOpacity={0.7}
+							onPress={() => {
+								router.push({
+									pathname: `/edit-post/[id]`,
+									params: {
+										id: props.id,
+									},
+								});
+								handleCloseModal();
+							}}
+							className="w-full items-start justify-start rounded-xl rounded-b-none bg-[#2A2A2A] p-5"
+						>
+							<Text className="text-lg font-extrabold text-white">Edit</Text>
+						</TouchableOpacity>
+						<Separator />
+						<TouchableOpacity
+							activeOpacity={0.7}
+							onPress={() => {
+								handleOnDelete(props.id);
+								handleCloseModal();
+							}}
+							className="w-full items-start justify-start rounded-xl rounded-t-none bg-[#2A2A2A] p-5"
+						>
+							<Text className="text-lg font-extrabold text-red-500">Delete</Text>
+						</TouchableOpacity>
+					</View>
+				</ContextModal>
+			</Pressable>
+		</>
 	);
 };
 export default PostCard;
