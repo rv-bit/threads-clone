@@ -220,7 +220,7 @@ export default function CreatePost() {
 							<Image source={{ uri: "https://randomuser.me/api/portraits/men/75.jpg" }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 2, backgroundColor: "gray" }} />
 
 							<View className="flex-1 flex-col items-start justify-start gap-3">
-								<View className="flex-col items-start justify-start">
+								<View className="flex-col items-start justify-start tracking-tighter">
 									<Text className="text-lg font-extrabold text-white">rsvsbb</Text>
 									<TextInput
 										ref={inputRef}

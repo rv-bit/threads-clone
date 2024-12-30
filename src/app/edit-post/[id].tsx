@@ -193,8 +193,8 @@ export default function EditPost() {
 							<Image source={{ uri: "https://randomuser.me/api/portraits/men/75.jpg" }} style={{ width: 35, height: 35, borderRadius: 50, marginTop: 2, backgroundColor: "gray" }} />
 
 							<View className="flex-1 flex-col items-start justify-start gap-3">
-								<View className="flex-col items-start justify-start">
-									<Text className="text-md font-extrabold text-white">rsvsbb</Text>
+								<View className="flex-col items-start justify-start tracking-tighter">
+									<Text className="text-lg font-extrabold text-white">rsvsbb</Text>
 									<TextInput
 										ref={inputRef}
 										multiline={true}
@@ -204,7 +204,7 @@ export default function EditPost() {
 										onChangeText={(text) => {
 											handleContentChange(text);
 										}}
-										className={cn("rounded-md p-0 text-sm placeholder:color-gray-500", "text-white")}
+										className={cn("rounded-md p-0 text-lg placeholder:color-gray-500", "text-white")}
 										style={{
 											textAlignVertical: "top",
 										}}
