@@ -42,7 +42,7 @@ const ContextModal: React.FC<ContextModalProps> = ({ visible, onClose, children 
 	return (
 		<Modal
 			animationType="slide"
-			transparent={false}
+			transparent={true}
 			visible={visible}
 			onRequestClose={() => {
 				// Prevent back button from closing the modal

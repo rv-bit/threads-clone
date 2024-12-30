@@ -1,10 +1,10 @@
 import { Stack } from "expo-router";
 
-const StackLayout = () => {
+export default function StackLayout() {
 	return (
 		<Stack
 			screenOptions={{
-				headerShown: true,
+				headerShown: false,
 				headerBackVisible: false,
 				contentStyle: {
 					backgroundColor: "#181818",
@@ -20,6 +20,4 @@ const StackLayout = () => {
 			/>
 		</Stack>
 	);
-};
-
-export default StackLayout;
+}

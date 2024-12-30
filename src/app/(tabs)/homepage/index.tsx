@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { View, SafeAreaView, RefreshControl, Button } from "react-native";
+import { View, RefreshControl, Button } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList } from "react-native-gesture-handler";
 
 import { DeletePost, FetchPosts } from "@/api/post";
@@ -92,7 +93,7 @@ export default function Home() {
 	}, [posts, searchParams]);
 
 	return (
-		<SafeAreaView className="flex-1 flex-col items-start justify-center p-5 px-0">
+		<SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
 			<View className="mt-5 h-fit w-full items-center justify-center bg-[#181818] p-5 pb-2">
 				<Input value={searchParams} onChange={(query) => setSearchParams(query)} placeholder="Search" className="h-14 w-full rounded-xl bg-[#1E1E1E] px-2 text-white" />
 			</View>
