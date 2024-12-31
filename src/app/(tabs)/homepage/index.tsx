@@ -89,13 +89,24 @@ export default function Home() {
 	}, [handleFetch, setPosts]);
 
 	const filteredPosts = useMemo(() => {
-		return posts?.filter((post: PostFetchProps) => post.content.toLowerCase().includes(searchParams.toLowerCase()));
+		const filteredSearchParams = searchParams.trim(); // Remove white spaces from the search params from the start and end
+		if (!filteredSearchParams) {
+			return posts;
+		}
+
+		return posts?.filter((post: PostFetchProps) => post.content.toLowerCase().includes(filteredSearchParams.toLowerCase()));
 	}, [posts, searchParams]);
 
 	return (
 		<SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
-			<View className="mt-5 h-fit w-full items-center justify-center bg-[#181818] p-5 pb-2">
-				<Input value={searchParams} onChange={(query) => setSearchParams(query)} placeholder="Search" className="h-14 w-full rounded-xl bg-[#1E1E1E] px-2 text-white" />
+			<View className="mt-5 h-fit w-full flex-row items-center justify-between bg-[#181818] p-5 pb-2">
+				<Input
+					value={searchParams}
+					onChange={(query) => setSearchParams(query)}
+					onCancel={() => setSearchParams("")}
+					placeholder="Search"
+					className="h-14 w-full rounded-xl bg-[#1E1E1E] px-3"
+				/>
 			</View>
 
 			<FlatList
