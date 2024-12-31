@@ -61,7 +61,7 @@ export default function CreatePost() {
 
 		const result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: ["images"],
-			allowsEditing: false,
+			allowsMultipleSelection: true,
 			aspect: [16, 9],
 			quality: 0.6,
 			base64: true,
@@ -105,11 +105,13 @@ export default function CreatePost() {
 		}
 
 		if (!result.canceled) {
-			const uri = `data:image/png;base64,${(result.assets[0] as { base64: string }).base64}`;
-			setFormData((prevData) => ({
-				...prevData,
-				images: [...prevData.images, uri],
-			}));
+			Object.entries(result.assets).forEach(([key, value]) => {
+				const uri = `data:image/png;base64,${(value as { base64: string }).base64}`;
+				setFormData((prevData) => ({
+					...prevData,
+					images: [...prevData.images, uri],
+				}));
+			});
 		}
 	}, [formData, handleOpenImagePicker]);
 
@@ -136,11 +138,13 @@ export default function CreatePost() {
 				}
 
 				if (!result.canceled) {
-					const uri = `data:image/png;base64,${(result.assets[0] as { base64: string }).base64}`;
-					setFormData((prevData) => ({
-						...prevData,
-						images: [...prevData.images, uri],
-					}));
+					Object.entries(result.assets).forEach(([key, value]) => {
+						const uri = `data:image/png;base64,${(value as { base64: string }).base64}`;
+						setFormData((prevData) => ({
+							...prevData,
+							images: [...prevData.images, uri],
+						}));
+					});
 				}
 			} else if (action === "take-photo") {
 				router.dismiss(); // Close the modal for now
