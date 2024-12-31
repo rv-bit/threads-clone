@@ -71,30 +71,45 @@ export default function CreatePost() {
 	}, [status, requestPermission]);
 
 	const handleOnPost = useCallback(async () => {
-		const purifyData = {
-			content: formData.content,
-			images: formData.images,
-		};
-
-		purifyData.content = purifyData.content.trim(); // remove any leading/trailing whitespace
-		purifyData.content = purifyData.content.replace(/<[^>]*>?/gm, ""); // remove any HTML tags
-
-		const { error, message } = await InsertPost(purifyData.content, purifyData.images);
-
-		if (error) {
-			Alert.alert("Error", message);
+		if (!formData) {
 			return;
 		}
 
-		Alert.alert("Success", message);
+		Alert.alert("Posting...", "Are you sure you want to post this?", [
+			{
+				text: "Cancel",
+				style: "cancel",
+			},
+			{
+				text: "Post",
+				onPress: async () => {
+					const purifyData = {
+						content: formData.content,
+						images: formData.images,
+					};
 
-		setFormData({
-			content: "",
-			images: [],
-		});
+					purifyData.content = purifyData.content.trim(); // remove any leading/trailing whitespace
+					purifyData.content = purifyData.content.replace(/<[^>]*>?/gm, ""); // remove any HTML tags
 
-		// Navigate to the home screen
-		router.replace("/");
+					const { error, message } = await InsertPost(purifyData.content, purifyData.images);
+
+					if (error) {
+						Alert.alert("Error", message);
+						return;
+					}
+
+					Alert.alert("Success", message);
+
+					setFormData({
+						content: "",
+						images: [],
+					});
+
+					// Navigate to the home screen
+					router.replace("/");
+				},
+			},
+		]);
 	}, [formData]);
 
 	const handleOnAddImages = useCallback(async () => {
