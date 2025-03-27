@@ -1,6 +1,6 @@
-# Expo + Drizzle Threads-Like Application
+Threads Clone
 
-Expo + Drizzle Threads-Like Application is a social media app inspired by Threads, allowing users to create, like, edit, and delete posts while seamlessly managing media uploads.
+This social media app, inspired by Threads, allows users to create, like, edit, and delete posts while effortlessly managing media uploads.
 
 ## Features
 ### Core Functionalities
