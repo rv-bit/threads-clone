@@ -1,4 +1,4 @@
-Threads Clone
+# Threads Clone
 
 This social media app, inspired by Threads, allows users to create, like, edit, and delete posts while effortlessly managing media uploads.
 
